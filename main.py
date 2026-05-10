@@ -28,7 +28,12 @@ logger = logging.getLogger(__name__)
 bot = TeleBot(API_TOKEN)
 
 def init_db():
-    db_path = os.path.join(os.getenv('DB_PATH', '.'), 'posted_arts.db')
+    db_dir = os.getenv('DB_PATH', '.')
+    db_path = os.path.join(db_dir, 'posted_arts.db')
+    
+    # Создаём папку, если её нет
+    os.makedirs(db_dir, exist_ok=True)
+    
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
     cursor.execute('CREATE TABLE IF NOT EXISTS posted (id INTEGER PRIMARY KEY)')
