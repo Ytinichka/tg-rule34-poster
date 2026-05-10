@@ -10,7 +10,7 @@ from telebot.types import InputMediaPhoto
 # --- CONFIGURATION ---
 API_TOKEN = '8377961270:AAH-_rO-Cctf941gKqr-g6D7rARaHzbG-sU'
 CHANNEL_ID = -1002076948442
-FETCH_INTERVAL = 1200  # 10 минут
+FETCH_INTERVAL = 1200  # 20 минут
 POST_COUNT = 5        # 5 артов за раз
 
 # Rule34 Auth
