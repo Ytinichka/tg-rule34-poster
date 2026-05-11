@@ -185,7 +185,7 @@ def main():
             continue
             
         logger.info(f"Сплю {FETCH_INTERVAL} секунд...")
-                current_character_index = (current_character_index + 1) % len(CHARACTER_DATA)
+        current_character_index = (current_character_index + 1) % len(CHARACTER_DATA)
         time.sleep(FETCH_INTERVAL)
 
 if __name__ == "__main__":
