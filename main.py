@@ -18,7 +18,7 @@ USER_ID = '6222375'
 API_KEY = 'dacf53b6d570b01887ef9cb20694d768c7d9d980de1189f458e1e9400f518e88ab980a7cc2b8ae89f5c8d4d64e37524aaa922d824bdf6aba8c6ee20a8d2d0414'
 
 API_URL = "https://api.rule34.xxx/index.php?page=dapi&s=post&q=index&json=1"
-TAGS = "rating:explicit female -male -futanari -futa -futadom -dickgirl -newhalf -intersex -trap -femboy -yaoi -gay -male_on_male -gay_sex -shemale" 
+TAGS = "my_hero_academia rating:explicit (mirko OR uraraka OR ochaco OR momo OR jiro OR mina OR tsuyu OR mount_lady OR midnight OR nejire OR himiko) female -male -futanari -futa -futadom -dickgirl -newhalf -intersex -trap -femboy -yaoi -gay" 
 
 # Logging setup
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
