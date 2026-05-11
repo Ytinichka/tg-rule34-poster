@@ -18,7 +18,7 @@ USER_ID = '6222375'
 API_KEY = 'dacf53b6d570b01887ef9cb20694d768c7d9d980de1189f458e1e9400f518e88ab980a7cc2b8ae89f5c8d4d64e37524aaa922d824bdf6aba8c6ee20a8d2d0414'
 
 API_URL = "https://api.rule34.xxx/index.php?page=dapi&s=post&q=index&json=1"
-TAGS = "my_hero_academia rating:explicit 1girl -male -2boys -3boys -multiple_boys -futanari -futa -futadom -dickgirl -newhalf -intersex -trap -femboy -yaoi -gay -male_on_male -gay_sex -shemale -tomoko -mineta" 
+TAGS = "my_hero_academia rating:explicit 1girl ai_generated female -male -2boys -3boys -multiple_boys -futanari -futa -futadom -dickgirl -newhalf -intersex -trap -femboy -yaoi -gay -male_on_male -gay_sex -shemale -tomoko -mineta -sketch -lineart -traditional_media -monochrome -pencil -greyscale -inked -line_art -rough_sketch -comic -manga -doujinshi" 
 
 # Logging setup
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
