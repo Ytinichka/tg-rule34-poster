@@ -18,58 +18,57 @@ USER_ID = '6222375'
 API_KEY = 'dacf53b6d570b01887ef9cb20694d768c7d9d980de1189f458e1e9400f518e88ab980a7cc2b8ae89f5c8d4d64e37524aaa922d824bdf6aba8c6ee20a8d2d0414'
 
 API_URL = "https://api.rule34.xxx/index.php?page=dapi&s=post&q=index&json=1"
-# Упростили базовые теги, чтобы не перегружать запрос и находить больше артов
-BASE_TAGS = "my_hero_academia rating:explicit 1girl -male -futanari -futa -trap -sketch -lineart -monochrome"
+BASE_TAGS = "my_hero_academia rating:explicit 1girl ai_generated female -male -2boys -3boys -multiple_boys -futanari -futa -futadom -dickgirl -newhalf -intersex -trap -femboy -yaoi -gay -male_on_male -gay_sex -shemale -tomoko -mineta -sketch -lineart -traditional_media -monochrome -pencil -greyscale -inked -line_art -rough_sketch -comic -manga -doujinshi"
 
 CHARACTER_DATA = [
     {
         "name": "Mirko",
-        "tags": "mirko_(my_hero_academia)",
+        "tags": "mirko rumi_usagiyama",
         "hashtags": "#Mirko #RumiUsagiyama"
     },
     {
         "name": "Uraraka",
-        "tags": "uraraka_ochako",
+        "tags": "ochaco_uraraka",
         "hashtags": "#Uraraka #OchacoUraraka"
     },
     {
         "name": "Toga",
-        "tags": "toga_himiko",
+        "tags": "himiko_toga",
         "hashtags": "#Toga #HimikoToga"
     },
     {
         "name": "Jiro",
-        "tags": "jirou_kyouka",
+        "tags": "kyoka_jiro",
         "hashtags": "#Jiro #KyokaJiro"
     },
     {
         "name": "Momo",
-        "tags": "yaoyorozu_momo",
+        "tags": "momo_yaoyorozu",
         "hashtags": "#Momo #MomoYaoyorozu"
     },
     {
         "name": "Tsuyu",
-        "tags": "asui_tsuyu",
+        "tags": "tsuyu_asui",
         "hashtags": "#Tsuyu #TsuyuAsui"
     },
     {
         "name": "MtLady",
-        "tags": "mount_lady",
+        "tags": "mt_lady yu_takeyama",
         "hashtags": "#MtLady #YuTakeyama"
     },
     {
         "name": "Midnight",
-        "tags": "midnight_(my_hero_academia)",
+        "tags": "midnight nemuri_kayama",
         "hashtags": "#Midnight #NemuriKayama"
     },
     {
         "name": "Ryukyu",
-        "tags": "ryukyu_(my_hero_academia)",
+        "tags": "ryukyu ryuuko_tatsuma",
         "hashtags": "#Ryukyu #RyuukoTatsuma"
     },
     {
         "name": "Nejire",
-        "tags": "hadou_nejire",
+        "tags": "nejire_hado",
         "hashtags": "#Nejire #NejireHado"
     }
 ]
@@ -108,10 +107,9 @@ def mark_as_posted(conn, art_id):
 
 def fetch_random_arts(conn, character_tags):
     try:
-        # Сначала пробуем найти на первых страницах (самые свежие и релевантные)
-        # Если не находим, пробуем случайную страницу, но в меньшем диапазоне
-        pid_choice = random.choice([0, 1, 2, random.randint(0, 100)])
-        url = f"{API_URL}&tags={BASE_TAGS} {character_tags}&limit=100&pid={pid_choice}&user_id={USER_ID}&api_key={API_KEY}"
+        # На Rule34 берем случайную страницу из архива (до 1000)
+        random_pid = random.randint(0, 1000)
+        url = f"{API_URL}&tags={BASE_TAGS} {character_tags}&limit=50&pid={random_pid}&user_id={USER_ID}&api_key={API_KEY}"
         
         headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'}
         
@@ -166,9 +164,7 @@ def main():
                     media.append(InputMediaPhoto(img_url))
                 
                 if media:
-                    # В telebot подпись для альбома ставится в первый элемент медиа-группы
-                    media[0].caption = character_hashtags
-                    bot.send_media_group(CHANNEL_ID, media)
+                    bot.send_media_group(CHANNEL_ID, media, caption=character_hashtags)
                     for art in to_post:
                         mark_as_posted(db_conn, art['id'])
                     logger.info(f"Опубликовано {len(media)} артов.")
