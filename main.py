@@ -155,30 +155,39 @@ def main():
         logger.info(f"Ищу арты для персонажа: {character_name} с тегами: {character_tags}...")
         to_post = fetch_random_arts(db_conn, character_tags)
         
-        if to_post:
+                if to_post:
             try:
-                media = []
-                for art in to_post:
-                    # Используем sample_url для надежности отправки
-                    img_url = art.get('sample_url') or art.get('file_url')
-                    media.append(InputMediaPhoto(img_url))
+                character_name = current_character["name"]
+                character_hashtags = current_character["hashtags"]
+                caption = f"{character_name} {character_hashtags}\n#MyHeroAcademia #Rule34"
                 
-                if media:
-                    bot.send_media_group(CHANNEL_ID, media, caption=character_hashtags)
-                    for art in to_post:
-                        mark_as_posted(db_conn, art['id'])
-                    logger.info(f"Опубликовано {len(media)} артов.")
+                media = []
+                for i, art in enumerate(to_post):
+                    img_url = art.get('sample_url') or art.get('file_url')
+                    
+                    if i == 0:
+                        media.append(InputMediaPhoto(img_url, caption=caption))
+                    else:
+                        media.append(InputMediaPhoto(img_url))
+                
+                bot.send_media_group(CHANNEL_ID, media)
+                
+                for art in to_post:
+                    mark_as_posted(db_conn, art['id'], character_name)
+                    
+                logger.info(f"✅ Опубликовано {len(to_post)} артов — {character_name}")
                 
             except Exception as e:
                 logger.error(f"Ошибка при отправке альбома: {e}. Пробую по одному...")
+                # Fallback — по одному
                 for art in to_post:
                     try:
                         img_url = art.get('sample_url') or art.get('file_url')
-                        bot.send_photo(CHANNEL_ID, img_url, caption=character_hashtags)
-                        mark_as_posted(db_conn, art['id'])
-                        time.sleep(1)
+                        bot.send_photo(CHANNEL_ID, img_url, caption=caption)
+                        mark_as_posted(db_conn, art['id'], character_name)
+                        time.sleep(1.5)
                     except Exception as e2:
-                        logger.error(f"Не удалось отправить арт {art['id']}: {e2}")
+                        logger.error(f"Не удалось отправить {art['id']}: {e2}")
         else:
             logger.info("Не удалось найти новые арты на этой странице, попробую другую через 4 сек...")
             time.sleep(4)
