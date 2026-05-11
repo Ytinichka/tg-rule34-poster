@@ -181,7 +181,7 @@ def main():
                         logger.error(f"Не удалось отправить арт {art['id']}: {e2}")
         else:
             logger.info("Не удалось найти новые арты на этой странице, попробую другую через 10 сек...")
-            time.sleep(10)
+            time.sleep(4)
             continue
             
         logger.info(f"Сплю {FETCH_INTERVAL} секунд...")
