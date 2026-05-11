@@ -11,7 +11,7 @@ from telebot.types import InputMediaPhoto
 API_TOKEN = '8377961270:AAH-_rO-Cctf941gKqr-g6D7rARaHzbG-sU'
 CHANNEL_ID = -1002076948442
 FETCH_INTERVAL = 1200      # 20 минут
-POST_COUNT = 3             # рекомендуем 2-3 для начала
+POST_COUNT = 3             # 2-3 — оптимально
 
 # Rule34 Auth
 USER_ID = '6222375'
@@ -49,6 +49,8 @@ def init_db():
     
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
+    
+    # Создаём таблицу с нужными колонками
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS posted (
             id INTEGER PRIMARY KEY,
@@ -64,10 +66,13 @@ def is_posted(conn, art_id):
     cursor.execute('SELECT 1 FROM posted WHERE id = ?', (art_id,))
     return cursor.fetchone() is not None
 
-def mark_as_posted(conn, art_id, character):
-    cursor = conn.cursor()
-    cursor.execute('INSERT INTO posted (id, character) VALUES (?, ?)', (art_id, character))
-    conn.commit()
+def mark_as_posted(conn, art_id, character="Unknown"):
+    try:
+        cursor = conn.cursor()
+        cursor.execute('INSERT INTO posted (id, character) VALUES (?, ?)', (art_id, character))
+        conn.commit()
+    except Exception as e:
+        logger.error(f"Ошибка записи в БД: {e}")
 
 def fetch_random_arts(conn, character_tags):
     try:
@@ -94,7 +99,7 @@ def fetch_random_arts(conn, character_tags):
             if is_posted(conn, art['id']):
                 continue
             img_url = art.get('sample_url') or art.get('file_url')
-            if img_url:
+            if img_url and img_url.startswith('http'):
                 to_post.append(art)
             if len(to_post) == POST_COUNT:
                 break
@@ -119,9 +124,11 @@ def main():
         to_post = fetch_random_arts(db_conn, char["tags"])
 
         if to_post:
+            caption = f"{character_name} {character_hashtags}\n#MyHeroAcademia #Rule34"
+            posted_successfully = False
+
             try:
-                caption = f"{character_name} {character_hashtags}\n#MyHeroAcademia #Rule34"
-                
+                # Пробуем отправить альбомом
                 media = []
                 for i, art in enumerate(to_post):
                     img_url = art.get('sample_url') or art.get('file_url')
@@ -131,31 +138,36 @@ def main():
                         media.append(InputMediaPhoto(img_url))
 
                 bot.send_media_group(CHANNEL_ID, media)
-                
-                for art in to_post:
-                    mark_as_posted(db_conn, art['id'], character_name)
-                    
-                logger.info(f"✅ Опубликовано {len(to_post)} артов — {character_name}")
-                
+                logger.info(f"✅ Альбом отправлен ({len(to_post)} артов) — {character_name}")
+                posted_successfully = True
+
             except Exception as e:
                 logger.error(f"Ошибка при отправке альбома: {e}. Пробую по одному...")
-                caption = f"{character_name} {character_hashtags}\n#MyHeroAcademia #Rule34"
+                
+                # Fallback — отправляем по одному
                 for art in to_post:
                     try:
                         img_url = art.get('sample_url') or art.get('file_url')
                         bot.send_photo(CHANNEL_ID, img_url, caption=caption)
-                        mark_as_posted(db_conn, art['id'], character_name)
-                        time.sleep(1.5)
+                        logger.info(f"Отправлен по одному: {art['id']}")
+                        posted_successfully = True
+                        time.sleep(1.2)
                     except Exception as e2:
                         logger.error(f"Не удалось отправить {art['id']}: {e2}")
+
+            # Отмечаем как запощённые ТОЛЬКО если хотя бы что-то отправилось
+            if posted_successfully:
+                for art in to_post:
+                    mark_as_posted(db_conn, art['id'], character_name)
+
         else:
-            logger.info(f"Не нашёл арты для {character_name}, пробую другую страницу...")
-            time.sleep(4)   # было 10, теперь быстрее
+            logger.info(f"Не нашёл новые арты для {character_name}, пробую другую страницу...")
+            time.sleep(4)
             continue
 
         # Переключаемся на следующего персонажа
         current_character_index = (current_character_index + 1) % len(CHARACTER_DATA)
-        logger.info(f"Следующий персонаж: {CHARACTER_DATA[current_character_index]['name']}")
+        logger.info(f"→ Следующий персонаж: {CHARACTER_DATA[current_character_index]['name']}")
         time.sleep(FETCH_INTERVAL)
 
 if __name__ == "__main__":
